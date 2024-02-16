@@ -54,8 +54,10 @@ async function addNewContact() {
     const firstName = await rl.question('First Name: ');
     const lastName = await rl.question('last Name: ');
 
+    let biggestId = Math.max(...contactsList.map(contact => Number(contact.id)));
+
     const contact = {
-        id: contactsList.length,
+        id: Number(biggestId) + 1,
         firstName,
         lastName,
     }
