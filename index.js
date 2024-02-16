@@ -1,4 +1,5 @@
 import readline from 'readline/promises';
+import fs from 'fs/promises';
 import {
     stdin as input,
     stdout as output,
@@ -6,13 +7,9 @@ import {
 
 const rl = readline.createInterface({input, output});
 
-const contactsList = [
-    {
-        id: 0,
-        firstName: 'Mamad',
-        lastName: 'afzali'
-    }
-];
+const CONTACT_LIST_FILE_PATH = './data/contactslist.json';
+
+const contactsList = [];
 
 const validMenuOptions = ['n', 'l', 'q']
 
@@ -20,21 +17,21 @@ async function help() {
     console.log('n: add new contact\nl: show list\nq: quit');
     const menu = await rl.question('Enter an option from the menu: ');
 
-    if ( ! validMenuOptions.includes(menu) ) {
-        console.log( '--- Invalid Input! ---' );
+    if (!validMenuOptions.includes(menu)) {
+        console.log('--- Invalid Input! ---');
         quit();
     }
 
     if ('l' === menu) {
         showContactsList(contactsList);
-        console.log( '---------- List Done. ----------' );
+        console.log('---------- List Done. ----------');
         help();
     }
 
     if ('n' === menu) {
         await addNewContact();
         showContactsList(contactsList);
-        console.log( '---------- New Contact added! ----------' );
+        console.log('---------- New Contact added! ----------');
         help();
     }
 
@@ -57,6 +54,7 @@ async function addNewContact() {
     }
     contactsList.push(contact);
 
+    saveContacts();
     return contactsList;
 }
 
@@ -83,8 +81,29 @@ function quit() {
     rl.close();
 }
 
-help();
+async function loadContacts() {
+    try {
+        const contactListJSON = await fs.readFile(CONTACT_LIST_FILE_PATH, 'utf-8');
+        contactsList.push( ...JSON.parse(contactListJSON) );
+    } catch (e) {
+        throw e;
+    }
+}
 
+async function saveContacts() {
+    try {
+        await fs.writeFile(CONTACT_LIST_FILE_PATH, JSON.stringify(contactsList));
+    } catch (e) {
+        throw e;
+    }
+}
+
+function main() {
+    loadContacts();
+    help();
+}
+
+main();
 // const list = await addNewContact();
 // showContactsList(list, 'table');
 // quit();
