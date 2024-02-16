@@ -10,12 +10,12 @@ const rl = readline.createInterface({input, output});
 const CONTACT_LIST_FILE_PATH = './data/contactslist.json';
 const CONTACT_LIST_DIR_PATH = './data';
 
-const contactsList = [];
+let contactsList = [];
 
-const validMenuOptions = ['n', 'l', 'q']
+const validMenuOptions = ['n', 'l', 'q', 'd'];
 
 async function help() {
-    console.log('n: add new contact\nl: show list\nq: quit');
+    console.log('n: add new contact\nl: show list\nd: delete a contact\nq: quit');
     const menu = await rl.question('Enter an option from the menu: ');
 
     if (!validMenuOptions.includes(menu)) {
@@ -24,15 +24,21 @@ async function help() {
     }
 
     if ('l' === menu) {
-        showContactsList(contactsList);
+        showContactsList();
         console.log('---------- List Done. ----------');
         help();
     }
 
     if ('n' === menu) {
         await addNewContact();
-        showContactsList(contactsList);
+        showContactsList();
         console.log('---------- New Contact added! ----------');
+        help();
+    }
+
+    if ('d' === menu) {
+        await deleteContact();
+        console.log('---------- Contact deleted! ----------');
         help();
     }
 
@@ -62,7 +68,7 @@ async function addNewContact() {
 /*
  * showType: 'table' or 'normal'
  */
-function showContactsList(contactsList, showType = 'table') {
+function showContactsList(showType = 'table') {
     if ('table' === showType) {
         console.table(contactsList);
         return;
@@ -94,6 +100,18 @@ async function createContactListFile() {
     } catch (e) {
         await fs.writeFile(CONTACT_LIST_FILE_PATH, '[]');
     }
+}
+
+async function deleteContact() {
+    console.log('Choose a contact id from the list below to delete: ');
+    showContactsList();
+
+    const contactId = await rl.question('contact id to delete: ');
+
+    contactsList = contactsList.filter(contact => String(contact.id) !== contactId);
+
+    saveContacts();
+    showContactsList();
 }
 
 async function loadContacts() {
