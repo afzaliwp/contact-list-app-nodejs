@@ -8,6 +8,7 @@ import {
 const rl = readline.createInterface({input, output});
 
 const CONTACT_LIST_FILE_PATH = './data/contactslist.json';
+const CONTACT_LIST_DIR_PATH = './data';
 
 const contactsList = [];
 
@@ -81,10 +82,24 @@ function quit() {
     rl.close();
 }
 
+async function createContactListFile() {
+    try {
+        await fs.access(CONTACT_LIST_DIR_PATH);
+    } catch (e) {
+        await fs.mkdir(CONTACT_LIST_DIR_PATH);
+    }
+
+    try {
+        await fs.access(CONTACT_LIST_FILE_PATH);
+    } catch (e) {
+        await fs.writeFile(CONTACT_LIST_FILE_PATH, '[]');
+    }
+}
+
 async function loadContacts() {
     try {
         const contactListJSON = await fs.readFile(CONTACT_LIST_FILE_PATH, 'utf-8');
-        contactsList.push( ...JSON.parse(contactListJSON) );
+        contactsList.push(...JSON.parse(contactListJSON));
     } catch (e) {
         throw e;
     }
@@ -98,12 +113,10 @@ async function saveContacts() {
     }
 }
 
-function main() {
+async function main() {
+    await createContactListFile();
     loadContacts();
     help();
 }
 
-main();
-// const list = await addNewContact();
-// showContactsList(list, 'table');
-// quit();
+await main();
