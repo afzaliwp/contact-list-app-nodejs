@@ -5,10 +5,13 @@ import {
     stdout as output,
 } from 'process';
 
-const rl = readline.createInterface({input, output});
+import {
+    CONTACT_LIST_FILE_PATH,
+    CONTACT_LIST_DIR_PATH,
+    loadContacts
+} from './services.js';
 
-const CONTACT_LIST_FILE_PATH = './data/contactslist.json';
-const CONTACT_LIST_DIR_PATH = './data';
+const rl = readline.createInterface({input, output});
 
 let contactsList = [];
 
@@ -116,15 +119,6 @@ async function deleteContact() {
     showContactsList();
 }
 
-async function loadContacts() {
-    try {
-        const contactListJSON = await fs.readFile(CONTACT_LIST_FILE_PATH, 'utf-8');
-        contactsList.push(...JSON.parse(contactListJSON));
-    } catch (e) {
-        throw e;
-    }
-}
-
 async function saveContacts() {
     try {
         await fs.writeFile(CONTACT_LIST_FILE_PATH, JSON.stringify(contactsList));
@@ -135,7 +129,8 @@ async function saveContacts() {
 
 async function main() {
     await createContactListFile();
-    loadContacts();
+    const contacts = await loadContacts();
+    contactsList.push(...contacts);
     help();
 }
 
