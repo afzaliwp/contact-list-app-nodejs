@@ -16,5 +16,8 @@
   "bugs": {
     "url": "https://github.com/afzaliwp/contact-list-app-nodejs/issues"
   },
-  "homepage": "https://github.com/afzaliwp/contact-list-app-nodejs#readme"
+  "homepage": "https://github.com/afzaliwp/contact-list-app-nodejs#readme",
+  "dependencies": {
+    "express": "^4.18.2"
+  }
 }
