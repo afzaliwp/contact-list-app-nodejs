@@ -6,9 +6,11 @@ import {
 } from 'process';
 
 import {
-    CONTACT_LIST_FILE_PATH,
-    CONTACT_LIST_DIR_PATH,
-    loadContacts
+    loadContacts,
+    saveContacts,
+    createContactListFile,
+    generateNewId,
+    deleteContactById
 } from './services.js';
 
 const rl = readline.createInterface({input, output});
@@ -57,16 +59,16 @@ async function addNewContact() {
     const firstName = await rl.question('First Name: ');
     const lastName = await rl.question('last Name: ');
 
-    let biggestId = Math.max(...contactsList.map(contact => Number(contact.id)));
+    const id = generateNewId(contactsList);
 
     const contact = {
-        id: Number(biggestId) + 1,
+        id,
         firstName,
         lastName,
     }
     contactsList.push(contact);
 
-    saveContacts();
+    await saveContacts(contactsList);
     return contactsList;
 }
 
@@ -93,38 +95,14 @@ function quit() {
     rl.close();
 }
 
-async function createContactListFile() {
-    try {
-        await fs.access(CONTACT_LIST_DIR_PATH);
-    } catch (e) {
-        await fs.mkdir(CONTACT_LIST_DIR_PATH);
-    }
-
-    try {
-        await fs.access(CONTACT_LIST_FILE_PATH);
-    } catch (e) {
-        await fs.writeFile(CONTACT_LIST_FILE_PATH, '[]');
-    }
-}
-
 async function deleteContact() {
     console.log('Choose a contact id from the list below to delete: ');
     showContactsList();
 
     const contactId = await rl.question('contact id to delete: ');
 
-    contactsList = contactsList.filter(contact => String(contact.id) !== contactId);
-
-    saveContacts();
+    contactsList = await deleteContactById(contactsList, contactId);
     showContactsList();
-}
-
-async function saveContacts() {
-    try {
-        await fs.writeFile(CONTACT_LIST_FILE_PATH, JSON.stringify(contactsList));
-    } catch (e) {
-        throw e;
-    }
 }
 
 async function main() {

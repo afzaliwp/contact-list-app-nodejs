@@ -12,6 +12,28 @@ export async function loadContacts() {
     }
 }
 
+export async function saveContacts(contactsList) {
+    try {
+        await fs.writeFile(CONTACT_LIST_FILE_PATH, JSON.stringify(contactsList));
+    } catch (e) {
+        throw e;
+    }
+}
+
+export async function createContactListFile() {
+    try {
+        await fs.access(CONTACT_LIST_DIR_PATH);
+    } catch (e) {
+        await fs.mkdir(CONTACT_LIST_DIR_PATH);
+    }
+
+    try {
+        await fs.access(CONTACT_LIST_FILE_PATH);
+    } catch (e) {
+        await fs.writeFile(CONTACT_LIST_FILE_PATH, '[]');
+    }
+}
+
 export function printTable(data) {
     let html = '<table>';
 
@@ -34,4 +56,16 @@ export function printTable(data) {
     html += '</table>';
 
     return html;
+}
+
+export function generateNewId(contactsList) {
+    let biggestId = Math.max(...contactsList.map(contact => Number(contact.id)));
+
+    return biggestId + 1;
+}
+
+export async function deleteContactById(contactsList, contactId) {
+    contactsList = contactsList.filter(contact => String(contact.id) !== contactId);
+    await saveContacts(contactsList);
+    return contactsList;
 }
