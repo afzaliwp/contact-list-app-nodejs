@@ -6,34 +6,32 @@ import {
     saveContacts,
     deleteContactById
 } from "../services.js";
+import {query} from '../db.js';
 
 const router = express.Router();
 const contactList = [];
 const contacts = await loadContacts();
 contactList.push(...contacts);
 
-router.get('/list', (req, res) => {
+router.get('/list', async (req, res) => {
     if ('table' === req.query.format) {
         res.setHeader('Content-Type', 'text/html');
         res.status(200).send(printTable(contactList));
     } else {
-        res.status(200).json(contactList);
+        const queryRes = await query('SELECT * FROM contacts');
+        res.status(200).json(queryRes['rows']);
     }
 });
 router.post('/new', async (req, res) => {
     const {firstName, lastName} = req.body;
 
-    const id = generateNewId(contactList);
+    const queryRes = await query(`INSERT INTO contacts
+    (first_name, last_name)
+    VALUES($1, $2)`, [firstName, lastName]);
 
-    const contact = {
-        id,
-        firstName,
-        lastName,
-    }
-    contactList.push(contact);
-
+    console.log(queryRes);
     await saveContacts(contactList);
-    res.send(`Contact "#${id} ${firstName} ${lastName}" created successfully!`);
+    res.send(`Contact "${firstName} ${lastName}" created successfully!`);
     return contactList;
 });
 
@@ -48,7 +46,7 @@ router.put('/edit', async (req, res) => {
 
     const index = contacts.findIndex((contact) => contact.id === Number(id));
 
-    if ( ! contactList[index] ) {
+    if (!contactList[index]) {
         res.send(`Invalid Id!`);
         return;
     }
