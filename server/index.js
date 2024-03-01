@@ -1,6 +1,7 @@
 import express from 'express';
 import routes from './routes.js';
 import bodyParser from 'express';
+import {sequelize} from "../db/sequelize.js";
 
 const app = express();
 
@@ -8,6 +9,9 @@ const logRequests = function (req, res, next) {
     console.log(req.method, req.url)
     next();
 }
+
+await sequelize.sync({ alter: true, force: false });
+console.log("All models were synchronized successfully.");
 
 app.use(logRequests);
 app.use(bodyParser.urlencoded({extended: false}));

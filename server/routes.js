@@ -2,11 +2,10 @@ import express from "express";
 import {
     printTable,
     loadContacts,
-    generateNewId,
     saveContacts,
     deleteContactById
 } from "../services.js";
-import {query} from '../db.js';
+import {query} from '../db/db.js';
 
 const router = express.Router();
 const contactList = [];
