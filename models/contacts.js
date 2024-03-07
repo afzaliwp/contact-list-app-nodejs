@@ -1,26 +1,37 @@
 import {DataTypes} from "sequelize";
 
 export default function (sequelize) {
-    return sequelize.define( 'Contact', {
-        firstName: {
-            type: DataTypes.STRING(20),
-            allowNull: false,
-        },
-        lastName: {
-            type: DataTypes.STRING(20),
-            allowNull: false,
-        },
-        mobilePhone: {
-            type: DataTypes.STRING(15),
-            allowNull: false,
-        },
-        isFavorite: {
-            type: DataTypes.BOOLEAN,
-            default: false,
-        },
-        profilePicture: {
-            type: DataTypes.BLOB,
-            allowNull: false,
-        },
-    });
+    return sequelize.define('Contact', {
+            firstName: {
+                type: DataTypes.STRING(20),
+                allowNull: false,
+            },
+            lastName: {
+                type: DataTypes.STRING(20),
+                allowNull: false,
+            },
+            mobilePhone: {
+                type: DataTypes.STRING(15),
+                allowNull: false,
+            },
+            isFavorite: {
+                type: DataTypes.BOOLEAN,
+                defaultValue: false,
+            },
+            profilePicture: {
+                type: DataTypes.BLOB,
+                allowNull: false,
+            },
+            createdAt: {
+                type: DataTypes.DATE,
+                defaultValue: sequelize.literal('CURRENT_TIMESTAMP'),
+                allowNull: false,
+            },
+            updatedAt: {
+                type: DataTypes.DATE,
+                defaultValue: sequelize.literal('CURRENT_TIMESTAMP'),
+                allowNull: false,
+            },
+        }
+    );
 }

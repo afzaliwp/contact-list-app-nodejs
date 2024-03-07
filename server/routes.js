@@ -6,55 +6,90 @@ import {
     deleteContactById
 } from "../services.js";
 import {query} from '../db/db.js';
+import {Contacts} from '../db/sequelize.js';
 
 const router = express.Router();
 const contactList = [];
-const contacts = await loadContacts();
-contactList.push(...contacts);
 
 router.get('/list', async (req, res) => {
-    if ('table' === req.query.format) {
-        res.setHeader('Content-Type', 'text/html');
-        res.status(200).send(printTable(contactList));
-    } else {
-        const queryRes = await query('SELECT * FROM contacts');
-        res.status(200).json(queryRes['rows']);
+    try {
+        const contacts = await Contacts.findAll();
+
+        res.status(200).json(contacts);
+    } catch (error) {
+        res.status(500).json({
+            message: 'something went wrong!',
+            error,
+        });
     }
+
 });
 router.post('/new', async (req, res) => {
-    const {firstName, lastName} = req.body;
+    const {firstName, lastName, mobilePhone, isFavorite, profilePicture} = req.body;
 
-    const queryRes = await query(`INSERT INTO contacts
-    (first_name, last_name)
-    VALUES($1, $2)`, [firstName, lastName]);
+    try {
+        const newContacts = await Contacts.create({
+            firstName,
+            lastName,
+            mobilePhone,
+            isFavorite: Boolean(isFavorite),
+            profilePicture
+        });
 
-    console.log(queryRes);
-    await saveContacts(contactList);
-    res.send(`Contact "${firstName} ${lastName}" created successfully!`);
-    return contactList;
+        res.json({success: true, ...newContacts.dataValues});
+        return contactList;
+    } catch (error) {
+        res.status(400).json({
+            message: 'something went wrong!',
+            error,
+        });
+    }
 });
 
 router.delete('/delete', async (req, res) => {
-    const {contactId} = req.body;
-    await deleteContactById(contactList, contactId);
-    res.send(`Contact "#${contactId}" deleted successfully!`);
+    try {
+        const {contactId} = req.body;
+        const affectedRows = await Contacts.destroy({
+            where: {
+                id: contactId,
+            },
+        });
+        res.json({
+            affectedRows
+        });
+    } catch (error) {
+        res.status(400).json({
+            message: 'something went wrong!',
+            error,
+        });
+    }
 });
 
 router.put('/edit', async (req, res) => {
-    const {id, firstName, lastName} = req.body;
+    const {id, firstName, lastName, mobilePhone, isFavorite, profilePicture} = req.body;
 
-    const index = contacts.findIndex((contact) => contact.id === Number(id));
+    try {
+        const affectedRows = await Contacts.update({
+            firstName,
+            lastName,
+            mobilePhone,
+            isFavorite,
+            profilePicture
+        }, {
+            where: {
+                id
+            }
+        });
 
-    if (!contactList[index]) {
-        res.send(`Invalid Id!`);
-        return;
+        res.json({
+            affectedRows,
+        });
+    } catch ( error ) {
+        res.status(400).json( {
+            message: 'something went wrong!',
+            error,
+        } );
     }
-
-    contactList[index].firstName = firstName;
-    contactList[index].lastName = lastName;
-
-    await saveContacts(contactList);
-    res.send(`Contact "#${id}" edited successfully!`);
 });
 
 export default router;

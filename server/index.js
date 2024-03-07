@@ -10,7 +10,7 @@ const logRequests = function (req, res, next) {
     next();
 }
 
-await sequelize.sync({ alter: true, force: false });
+await sequelize.sync({ alter: true });
 console.log("All models were synchronized successfully.");
 
 app.use(logRequests);
