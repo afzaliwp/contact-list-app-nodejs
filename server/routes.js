@@ -1,11 +1,4 @@
 import express from "express";
-import {
-    printTable,
-    loadContacts,
-    saveContacts,
-    deleteContactById
-} from "../services.js";
-import {query} from '../db/db.js';
 import {Contacts} from '../db/sequelize.js';
 
 const router = express.Router();

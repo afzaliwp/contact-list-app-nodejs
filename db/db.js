@@ -5,6 +5,7 @@ import * as sequelize from "./sequelize.js";
 console.log(sequelize)
 
 // server running command:
+// pg_ctl -D ~/PostgreSQL/postgresql@16 -o "-p 54321" -l logfile start
 // psql -h localhost -p 54321 -U ma90 -d contacts
 const pool = new Pool({
     host: 'localhost',
