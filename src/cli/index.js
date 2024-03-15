@@ -1,21 +1,11 @@
 import readline from 'readline/promises';
-import fs from 'fs/promises';
+import {Contacts, sequelize} from '../db/sequelize.js';
 import {
     stdin as input,
     stdout as output,
 } from 'process';
 
-import {
-    loadContacts,
-    saveContacts,
-    createContactListFile,
-    generateNewId,
-    deleteContactById
-} from './services.js';
-
 const rl = readline.createInterface({input, output});
-
-let contactsList = [];
 
 const validMenuOptions = ['n', 'l', 'q', 'd'];
 
@@ -36,21 +26,20 @@ async function help() {
 
     if ('n' === menu) {
         await addNewContact();
-        showContactsList();
+        await showContactsList();
         console.log('---------- New Contact added! ----------');
-        help();
+        await help();
     }
 
     if ('d' === menu) {
         await deleteContact();
         console.log('---------- Contact deleted! ----------');
-        help();
+        await help();
     }
 
     if ('q' === menu) {
         console.log('--- Bye! ---');
         quit();
-        return;
     }
 
 }
@@ -58,37 +47,33 @@ async function help() {
 async function addNewContact() {
     const firstName = await rl.question('First Name: ');
     const lastName = await rl.question('last Name: ');
+    const mobilePhone = await rl.question('mobile Phone: ');
+    const isFavorite = await rl.question('isFavorite [y/N]: ');
 
-    const id = generateNewId(contactsList);
+    try {
+        const newContacts = await Contacts.create({
+            firstName,
+            lastName,
+            mobilePhone,
+            isFavorite: isFavorite === 'y',
+        });
 
-    const contact = {
-        id,
-        firstName,
-        lastName,
+    } catch (error) {
+        console.error(error);
     }
-    contactsList.push(contact);
-
-    await saveContacts(contactsList);
-    return contactsList;
 }
 
 /*
  * showType: 'table' or 'normal'
  */
-function showContactsList(showType = 'table') {
-    if ('table' === showType) {
-        console.table(contactsList);
-        return;
+async function showContactsList() {
+    try {
+        const contacts = await Contacts.findAll();
+        const contactsData = JSON.parse(JSON.stringify(contacts))
+        console.table(contactsData)
+    } catch (error) {
+        console.error(error);
     }
-
-    const formattedContactList = contactsList
-        .map(({id, firstName, lastName}) => {
-            return `#${id}   ${firstName}    ${lastName}`;
-        }).join();
-
-    console.log('----------------------------');
-    console.log(formattedContactList);
-    console.log('----------------------------');
 }
 
 function quit() {
@@ -97,19 +82,25 @@ function quit() {
 
 async function deleteContact() {
     console.log('Choose a contact id from the list below to delete: ');
-    showContactsList();
+    await showContactsList();
 
     const contactId = await rl.question('contact id to delete: ');
 
-    contactsList = await deleteContactById(contactsList, contactId);
-    showContactsList();
+    const affectedRows = await Contacts.destroy({
+        where: {
+            id: contactId,
+        },
+    });
+    await showContactsList();
 }
 
 async function main() {
-    await createContactListFile();
-    const contacts = await loadContacts();
-    contactsList.push(...contacts);
-    help();
+    try {
+        await sequelize.sync({alter: true});
+        await help();
+    } catch (e) {
+        console.error(e);
+    }
 }
 
 await main();

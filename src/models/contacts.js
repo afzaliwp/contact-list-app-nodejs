@@ -20,7 +20,7 @@ export default function (sequelize) {
             },
             profilePicture: {
                 type: DataTypes.BLOB,
-                allowNull: false,
+                allowNull: true,
             },
             createdAt: {
                 type: DataTypes.DATE,

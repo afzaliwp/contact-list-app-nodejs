@@ -1,10 +1,6 @@
-import express from "express";
-import {Contacts} from '../db/sequelize.js';
+import {Contacts} from "../../db/sequelize.js";
 
-const router = express.Router();
-const contactList = [];
-
-router.get('/list', async (req, res) => {
+export async function getContacts(req, res) {
     try {
         const contacts = await Contacts.findAll();
 
@@ -15,9 +11,9 @@ router.get('/list', async (req, res) => {
             error,
         });
     }
+}
 
-});
-router.post('/new', async (req, res) => {
+export async function createContact(req, res) {
     const {firstName, lastName, mobilePhone, isFavorite, profilePicture} = req.body;
 
     try {
@@ -30,16 +26,15 @@ router.post('/new', async (req, res) => {
         });
 
         res.json({success: true, ...newContacts.dataValues});
-        return contactList;
     } catch (error) {
         res.status(400).json({
             message: 'something went wrong!',
             error,
         });
     }
-});
+}
 
-router.delete('/delete', async (req, res) => {
+export async function deleteContact(req, res) {
     try {
         const {contactId} = req.body;
         const affectedRows = await Contacts.destroy({
@@ -56,9 +51,9 @@ router.delete('/delete', async (req, res) => {
             error,
         });
     }
-});
+}
 
-router.put('/edit', async (req, res) => {
+export async function editContact(req, res) {
     const {id, firstName, lastName, mobilePhone, isFavorite, profilePicture} = req.body;
 
     try {
@@ -77,12 +72,10 @@ router.put('/edit', async (req, res) => {
         res.json({
             affectedRows,
         });
-    } catch ( error ) {
-        res.status(400).json( {
+    } catch (error) {
+        res.status(400).json({
             message: 'something went wrong!',
             error,
-        } );
+        });
     }
-});
-
-export default router;
+}

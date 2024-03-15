@@ -1,14 +1,9 @@
 import {Sequelize} from "sequelize";
+import configs from "../configs/database.js"
 import contactsModel from "../models/contacts.js";
 import contactCategoryModel from "../models/contactCategory.js";
 
-const sequelize = new Sequelize({
-    username: 'ma90',
-    password: '',
-    port: 54321,
-    database: 'contacts',
-    dialect: 'postgres',
-});
+const sequelize = new Sequelize(configs);
 
 const Contacts = contactsModel(sequelize);
 const ContactsCategory = contactCategoryModel(sequelize);

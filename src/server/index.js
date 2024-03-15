@@ -1,21 +1,20 @@
 import express from 'express';
-import routes from './routes.js';
+import contactsRoutes from './routes/contacts.js';
 import bodyParser from 'express';
 import {sequelize} from "../db/sequelize.js";
+import {logRequests} from "./middlewares/logger.js";
+import {config} from "dotenv";
+config();
 
 const app = express();
 
-const logRequests = function (req, res, next) {
-    console.log(req.method, req.url)
-    next();
-}
-
-await sequelize.sync({ alter: true });
+await sequelize.sync({alter: true});
 console.log("All models were synchronized successfully.");
+
 
 app.use(logRequests);
 app.use(bodyParser.urlencoded({extended: false}));
-app.use('/contacts', routes);
+app.use('/contacts', contactsRoutes);
 
 
 async function main() {
