@@ -7,9 +7,7 @@ const contactList = [];
 
 router.get('/list', getContacts);
 router.post('/new', createContact);
-
 router.delete('/delete', deleteContact);
-
 router.put('/edit', editContact);
 
 export default router;

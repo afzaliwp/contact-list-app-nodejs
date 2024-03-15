@@ -1,4 +1,7 @@
+import multer from 'multer';
 import {Contacts} from "../../db/sequelize.js";
+
+const upload = multer({storage: multer.memoryStorage()});
 
 export async function getContacts(req, res) {
     try {
@@ -13,8 +16,9 @@ export async function getContacts(req, res) {
     }
 }
 
-export async function createContact(req, res) {
-    const {firstName, lastName, mobilePhone, isFavorite, profilePicture} = req.body;
+async function createContactController(req, res) {
+    const {firstName, lastName, mobilePhone, isFavorite} = req.body;
+    const {buffer: profilePicture} = req.file;
 
     try {
         const newContacts = await Contacts.create({
@@ -33,6 +37,11 @@ export async function createContact(req, res) {
         });
     }
 }
+
+export const createContact = [
+    upload.single('profilePicture'),
+    createContactController
+];
 
 export async function deleteContact(req, res) {
     try {
