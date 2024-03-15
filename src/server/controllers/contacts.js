@@ -7,18 +7,25 @@ export async function getContacts(req, res) {
     try {
         const contacts = await Contacts.findAll();
 
-        res.status(200).json(contacts);
+        const normalizedContacts = contacts.map(({dataValues: {id, profilePicture, ...rest}}) => {
+            return {
+                id,
+                profilePicture: profilePicture ? `/static/profile-picture/${id}` : null,
+                ...rest
+            }
+        });
+        res.status(200).json(normalizedContacts);
     } catch (error) {
+        console.error(error);
         res.status(500).json({
             message: 'something went wrong!',
-            error,
         });
     }
 }
 
 async function createContactController(req, res) {
     const {firstName, lastName, mobilePhone, isFavorite} = req.body;
-    const {buffer: profilePicture} = req.file;
+    const {buffer: profilePicture} = req.file || {};
 
     try {
         const newContacts = await Contacts.create({
@@ -31,9 +38,9 @@ async function createContactController(req, res) {
 
         res.json({success: true, ...newContacts.dataValues});
     } catch (error) {
+        console.error(error);
         res.status(400).json({
-            message: 'something went wrong!',
-            error,
+            message: error.message,
         });
     }
 }
@@ -86,5 +93,28 @@ export async function editContact(req, res) {
             message: 'something went wrong!',
             error,
         });
+    }
+}
+
+export async function getProfilePicture(req, res) {
+    try {
+        const profilePic = await Contacts.findOne({
+            attributes: ['profilePicture'],
+            where: {
+                id: req.params.id,
+            }
+        });
+
+        if (profilePic.dataValues) {
+            res.type('image/jpeg');
+            res.send(profilePic.dataValues.profilePicture);
+            return;
+        }
+
+        res.status(404).send('Not Found!');
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).send('Something went wrong');
     }
 }
