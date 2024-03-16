@@ -8,8 +8,8 @@ const sequelize = new Sequelize(configs);
 const Contacts = contactsModel(sequelize);
 const ContactsCategory = contactCategoryModel(sequelize);
 
-Contacts.hasOne(ContactsCategory);
-ContactsCategory.belongsTo(Contacts);
+Contacts.belongsTo(ContactsCategory);
+ContactsCategory.hasMany(Contacts);
 
 export {sequelize};
 export {Contacts};
