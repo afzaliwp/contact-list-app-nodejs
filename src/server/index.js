@@ -5,11 +5,12 @@ import bodyParser from 'express';
 import {sequelize} from "../db/sequelize.js";
 import {logRequests} from "./middlewares/logger.js";
 import {config} from "dotenv";
+
 config();
 
 const app = express();
 
-await sequelize.sync({alter: true});
+await sequelize.sync({force: false});
 console.log("All models were synchronized successfully.");
 
 

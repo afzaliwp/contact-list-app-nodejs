@@ -1,4 +1,4 @@
-export default {
+module.exports = {
     username: 'ma90',
     password: '',
     port: 54321,
