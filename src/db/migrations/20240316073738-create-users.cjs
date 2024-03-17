@@ -10,11 +10,11 @@ module.exports = {
         type: Sequelize.INTEGER
       },
       fullName: {
-        type: Sequelize.STRING(25),
+        type: Sequelize.STRING(45),
         allowNull: false,
       },
       username: {
-        type: Sequelize.STRING(20),
+        type: Sequelize.STRING(40),
         allowNull: false,
         unique: true,
       },
