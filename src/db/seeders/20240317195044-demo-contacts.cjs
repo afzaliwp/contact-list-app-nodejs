@@ -15,11 +15,11 @@ async function generateUsers(numUsers) {
     const mobilePhone = `+98${getRandomInteger(901, 922)}${getRandomInteger(101, 999)}${getRandomInteger(1001, 9999)}`;
     const isFavorite = faker.datatype.boolean();
     const ContactCategoryId = getRandomInteger(1, 6);
-    const userId = getRandomInteger(22, 41);
+    const UserId = getRandomInteger(1, 20);
     const profilePicture = await readFile(__dirname + '/profile-pictures/' + getRandomInteger(1, 9) + '.png');
     const createdAt = faker.date.past();
     const updatedAt = faker.date.recent();
-    contacts.push({firstName, lastName, mobilePhone, isFavorite, ContactCategoryId, profilePicture, userId, createdAt, updatedAt});
+    contacts.push({firstName, lastName, mobilePhone, isFavorite, ContactCategoryId, profilePicture, UserId, createdAt, updatedAt});
   }
 
   return contacts;

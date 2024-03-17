@@ -4,5 +4,5 @@ module.exports = {
     port: 54321,
     database: 'contacts',
     dialect: 'postgres',
-    logging: false,
+    logging: console.log,
 }
