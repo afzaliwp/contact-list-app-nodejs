@@ -1,12 +1,31 @@
 import multer from 'multer';
 import {Contacts} from "../../db/sequelize.js";
+import {printTable} from "../../utils.js";
+import {Op} from "sequelize";
 
 const upload = multer({storage: multer.memoryStorage()});
 
-export async function getContacts(req, res) {
-    try {
-        const contacts = await Contacts.findAll();
+async function loadContacts(req, res, next) {
+    const {sort, order, q} = req.query;
+    const queryOrder = [];
+    const where = {};
+    if (sort) {
+        queryOrder.push([sort, order]);
+    }
 
+    if (q) {
+        where[Op.or] = [
+            {firstName: {[Op.iLike]: `%${q}%`}},
+            {lastName: {[Op.iLike]: `%${q}%`}},
+            {mobilePhone: {[Op.iLike]: `%${q}%`}},
+        ];
+    }
+
+    try {
+        const contacts = await Contacts.findAll({
+            order: queryOrder,
+            where: where,
+        });
         const normalizedContacts = contacts.map(({dataValues: {id, profilePicture, ...rest}}) => {
             return {
                 id,
@@ -14,14 +33,38 @@ export async function getContacts(req, res) {
                 ...rest
             }
         });
-        res.status(200).json(normalizedContacts);
+
+        req.locals = {
+            contacts: normalizedContacts,
+        }
+
+        next();
     } catch (error) {
         console.error(error);
         res.status(500).json({
-            message: 'something went wrong!',
+            message: error.message ? error.message : 'Something went wrong!',
         });
     }
 }
+
+function getFormattedContacts(req, res, next) {
+    if ('1' !== req.query.format) {
+        next();
+        return;
+    }
+
+    res.send(printTable(req.locals.contacts));
+}
+
+function getJsonContacts(req, res, next) {
+    res.json(req.locals.contacts);
+}
+
+export const getContacts = [
+    loadContacts,
+    getFormattedContacts,
+    getJsonContacts,
+];
 
 async function createContactController(req, res) {
     const {firstName, lastName, mobilePhone, isFavorite} = req.body;
