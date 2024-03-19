@@ -6,9 +6,13 @@ import {Op} from "sequelize";
 const upload = multer({storage: multer.memoryStorage()});
 
 async function loadContacts(req, res, next) {
-    const {sort, order, q} = req.query;
+    const {sort, order, q, page} = req.query;
     const queryOrder = [];
     const where = {};
+    const pagination = {
+        limit: 10,
+        offset: 0,
+    };
     if (sort) {
         queryOrder.push([sort, order]);
     }
@@ -21,10 +25,15 @@ async function loadContacts(req, res, next) {
         ];
     }
 
+    if (page) {
+        pagination.offset = (page - 1) * pagination.limit;
+    }
+
     try {
         const contacts = await Contacts.findAll({
             order: queryOrder,
             where: where,
+            ...pagination,
         });
         const normalizedContacts = contacts.map(({dataValues: {id, profilePicture, ...rest}}) => {
             return {
