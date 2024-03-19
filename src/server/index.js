@@ -1,10 +1,12 @@
 import express from 'express';
 import contactsRoutes from './routes/contacts.js';
 import imagesRoutes from './routes/images.js';
+import usersRoutes from "./routes/users.js";
 import bodyParser from 'express';
 import {sequelize} from "../db/sequelize.js";
 import {logRequests} from "./middlewares/logger.js";
 import {config} from "dotenv";
+import './auth.js';
 
 config();
 
@@ -18,6 +20,7 @@ app.use(logRequests);
 app.use(bodyParser.urlencoded({extended: false}));
 app.use('/contacts', contactsRoutes);
 app.use('/static', imagesRoutes);
+app.use('/users', usersRoutes);
 
 
 async function main() {

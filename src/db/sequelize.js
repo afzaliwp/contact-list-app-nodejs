@@ -19,3 +19,4 @@ Users.hasMany(Contacts);
 export {sequelize};
 export {Contacts};
 export {ContactsCategory};
+export {Users};
