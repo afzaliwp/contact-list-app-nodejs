@@ -2,13 +2,17 @@ import multer from 'multer';
 import {Contacts} from "../../db/sequelize.js";
 import {printTable} from "../../utils.js";
 import {Op} from "sequelize";
+import passport from "passport";
 
 const upload = multer({storage: multer.memoryStorage()});
 
 async function loadContacts(req, res, next) {
     const {sort, order, q, page} = req.query;
     const queryOrder = [];
-    const where = {};
+    const where = {
+        UserId: req.user.id,
+    };
+
     const pagination = {
         limit: 10,
         offset: 0,
@@ -70,6 +74,7 @@ function getJsonContacts(req, res, next) {
 }
 
 export const getContacts = [
+    passport.authenticate('jwt-verify', {session: false}),
     loadContacts,
     getFormattedContacts,
     getJsonContacts,
@@ -85,7 +90,8 @@ async function createContactController(req, res) {
             lastName,
             mobilePhone,
             isFavorite: Boolean(isFavorite),
-            profilePicture
+            profilePicture,
+            UserId: req.user.id,
         });
 
         res.json({success: true, ...newContacts.dataValues});
@@ -98,16 +104,18 @@ async function createContactController(req, res) {
 }
 
 export const createContact = [
+    passport.authenticate('jwt-verify', {session: false}),
     upload.single('profilePicture'),
     createContactController
 ];
 
-export async function deleteContact(req, res) {
+async function deleteContactController(req, res) {
     try {
         const {contactId} = req.body;
         const affectedRows = await Contacts.destroy({
             where: {
                 id: contactId,
+                UserId: req.user.id,
             },
         });
         res.json({
@@ -121,7 +129,12 @@ export async function deleteContact(req, res) {
     }
 }
 
-export async function editContact(req, res) {
+export const deleteContact = [
+    passport.authenticate('jwt-verify', {session: false}),
+    deleteContactController,
+];
+
+export async function editContactController(req, res) {
     const {id, firstName, lastName, mobilePhone, isFavorite, profilePicture} = req.body;
 
     try {
@@ -133,7 +146,8 @@ export async function editContact(req, res) {
             profilePicture
         }, {
             where: {
-                id
+                id: id,
+                UserId: req.user.id,
             }
         });
 
@@ -147,6 +161,11 @@ export async function editContact(req, res) {
         });
     }
 }
+
+export const editContact = [
+    passport.authenticate('jwt-verify', {session: false}),
+    editContactController,
+];
 
 export async function getProfilePicture(req, res) {
     try {

@@ -25,8 +25,6 @@ export default function (sequelize) {
           hooks: {
               beforeCreate: hashPassword,
               beforeUpdate: hashPassword,
-              beforeBulkCreate: hashPassword,
-              beforeBulkUpdate: hashPassword,
           }
       }
   );

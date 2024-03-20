@@ -1,3 +1,5 @@
+export const DAY_IN_SECOND = 24 * 60 * 60;
+
 export function printTable(data) {
     let html = '<table>';
 
