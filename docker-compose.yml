@@ -7,7 +7,7 @@ services:
     depends_on:
       - db
     environment:
-      - DATABASE_URL=postgres://ma90:password@db:54321/contacts
+      - DATABASE_URL=postgres://ma90@db:54321/contacts
   db:
     image: postgres:16
     ports:
